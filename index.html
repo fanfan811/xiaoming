@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>哪端？</title>
+    <style>
+        #particles-js {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #a8c0ff 0%, #d8b2ff 100%);
+            min-height: 100vh;
+            padding: 40px;
+            font-family: 'Segoe UI', sans-serif;
+            position: relative;
+            opacity: 0;
+            animation: fadeIn 1s ease-in forwards;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .button-container {
+            display: flex;
+            gap: 30px;
+            flex-direction: column;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 30px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+        }
+
+        .control-button {
+            padding: 20px 40px;
+            font-size: 1.4rem;
+            background: linear-gradient(45deg, #a8c0ff, #d8b2ff);
+            border: none;
+            border-radius: 25px;
+            color: #2c3e50;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            min-width: 250px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .control-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                120deg,
+                transparent,
+                rgba(255, 255, 255, 0.3),
+                transparent
+            );
+            transition: 0.5s;
+        }
+
+        .control-button:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            background: linear-gradient(45deg, #d8b2ff, #a8c0ff);
+        }
+
+        .control-button:hover::before {
+            left: 100%;
+        }
+
+        .control-button:active {
+            transform: translateY(2px);
+        }
+
+        @media (max-width: 768px) {
+            .button-container {
+                padding: 25px;
+                gap: 20px;
+            }
+            
+            .control-button {
+                padding: 15px 30px;
+                font-size: 1.2rem;
+                min-width: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="particles-js"></div>
+    
+    <div class="button-container">
+        <button class="control-button" onclick="window.location.href='xm.html'">web端(1)</button>
+        <button class="control-button" onclick="window.location.href='new_page.html'">web端(2)</button>
+        <button class="control-button" onclick="window.location.href='zm.html'">手机端</button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/particles.js"></script>
+    <script>
+        particlesJS.load('particles-js', 'particles.json', function() {
+            console.log('粒子背景已加载');
+        });
+    </script>
+</body>
+</html>

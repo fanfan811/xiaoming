@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>常来看看</title>
+    <style>
+        /* 新增粒子背景样式 */
+        #particles-js {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        body {
+            background: linear-gradient(135deg, #a8c0ff 0%, #d8b2ff 100%);
+            min-height: 100vh;
+            padding: 40px;
+            font-family: 'Segoe UI', sans-serif;
+            position: relative;
+            opacity: 0;
+            animation: fadeIn 1s ease-in forwards;
+        }
+
+        /* 添加移动端样式 */
+        @media (max-width: 768px) {
+            body {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+                margin-bottom: 20px;
+            }
+            
+            .image-container {
+                grid-template-columns: repeat(2, 1fr);
+                width: 100%;
+                height: auto;
+                padding: 10px;
+                gap: 10px;
+            }
+            
+            .poem-card {
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+            
+            .poem-card p {
+                font-size: 1.2rem;
+            }
+            
+            .control-button {
+                padding: 10px 20px;
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .image-container {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .poem-card {
+                padding: 15px;
+            }
+            
+            .poem-card p {
+                font-size: 1rem;
+            }
+        }
+        /* 添加页面淡入动画 */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .image-container {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 20px;
+            padding: 20px;
+            background: rgba(168, 192, 255, 0.4);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+            width: 1900px;
+            height: 1200px;
+            margin: 0 auto;
+            overflow: auto;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: slideUp 1s ease-out 0.5s forwards;
+        }
+
+        /* 添加内容向上滑入动画 */
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        .image-container {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 20px;
+            padding: 20px;
+            background: rgba(168, 192, 255, 0.4);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+            width: 1900px;
+            height: 1200px;
+            margin: 0 auto;
+            overflow: auto;
+            scrollbar-width: none;  /* Firefox */
+            -ms-overflow-style: none;  /* IE and Edge */
+        }
+
+        /* 为 Webkit 浏览器（Chrome、Safari等）隐藏滚动条 */
+        .image-container::-webkit-scrollbar {
+            display: none;
+        }
+        .image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            background-color: #f8f9fa;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            cursor: pointer;
+            opacity: 0;
+            transform: scale(0.95);
+            animation: floatImage 4s ease-in-out infinite; /* 添加浮动动画 */
+        }
+
+        /* 添加浮动动画关键帧 */
+        @keyframes floatImage {
+            0%, 100% {
+                transform: translateY(0) scale(1);
+            }
+            50% {
+                transform: translateY(-8px) scale(1.01);
+            }
+        }
+
+        .image-container img.loaded {
+            opacity: 1;
+            transform: scale(1);
+        }
+        
+        .image-container img:hover {
+            transform: scale(1.03);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            z-index: 1;
+            animation: none; /* 悬停时停止浮动动画 */
+        }
+        
+        .poem-card {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
+            backdrop-filter: blur(8px);
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto 30px auto;
+            position: relative;
+            overflow: hidden;
+            animation: cardPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes cardPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+
+        .poem-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg,
+                transparent,
+                rgba(255, 255, 255, 0.3),
+                transparent
+            );
+            transform: rotate(45deg);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) rotate(45deg); }
+        }
+
+        .poem-card p {
+            margin: 15px 0;
+            font-size: 1.4rem;
+            color: #2c3e50;
+            line-height: 2;
+            font-family: "楷体", KaiTi, serif;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .poem-card p:hover {
+            transform: translateY(-2px);
+            color: #1a237e;
+        }
+
+        /* 添加按钮样式 */
+        .control-button {
+            display: block;
+            margin: 20px auto;
+            padding: 12px 24px;
+            font-size: 1.1rem;
+            background: linear-gradient(45deg, #a8c0ff, #d8b2ff);
+            border: none;
+            border-radius: 25px;
+            color: #2c3e50;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .control-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
+
+        .control-button:active {
+            transform: translateY(1px);
+        }
+    </style>
+</head>
+<body>
+    <div id="particles-js"></div>
+    
+    <div class="gallery-container">
+        <div class="poem-card">
+            <p>等我们老得像两本旧书，泛黄的纸页还会相互取暖</p>
+            <p>要在皱纹里种满玫瑰，让每个吻都带着岁月的香气</p>
+        </div>
+
+        <!-- 添加按钮 -->
+        <button class="control-button" id="autoScrollBtn">自动滚动</button>
+
+        <div class="image-container" id="imageContainer">
+            <!-- 图片将动态插入到这里 -->
+        </div>
+
+    <!-- 新增粒子效果库 -->
+    <script src="https://cdn.jsdelivr.net/npm/particles.js"></script>
+    <script>
+        // 初始化粒子效果
+        particlesJS.load('particles-js', 'particles.json', function() {
+            console.log('粒子背景已加载');
+        });
+        const imageContainer = document.getElementById('imageContainer');
+        
+        // 添加错误处理
+        function handleError(error) {
+            console.error('错误详情:', error);
+            const errorDiv = document.createElement('div');
+            errorDiv.textContent = '图片加载出现问题，请稍后再试';
+            errorDiv.style.color = 'red';
+            imageContainer.appendChild(errorDiv);
+        }
+
+        // 从API获取图片列表
+        fetch('http://localhost:3000/api/images')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP错误! 状态码: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (!data.images || data.images.length === 0) {
+                    throw new Error('未找到任何图片');
+                }
+                
+                // 添加随机排序功能
+                function shuffleArray(array) {
+                    for (let i = array.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [array[i], array[j]] = [array[j], array[i]];
+                    }
+                    return array;
+                }
+                
+                const shuffledImages = shuffleArray(data.images);
+                // 在 script 标签中修改图片加载逻辑
+                shuffledImages.forEach(imageName => {
+                    const img = new Image();
+                    img.src = `http://localhost:3000/api/images/${imageName}`;
+                    img.alt = `小明图片 ${imageName}`;
+                    
+                    img.onload = () => {
+                        console.log(`成功加载图片: ${imageName}`);
+                        img.classList.add('loaded');
+                        imageContainer.appendChild(img);
+                        
+                        // 添加点击事件监听
+                        img.addEventListener('click', () => {
+                            // 创建弹窗容器
+                            const overlay = document.createElement('div');
+                            overlay.style.position = 'fixed';
+                            overlay.style.top = '0';
+                            overlay.style.left = '0';
+                            overlay.style.width = '100%';
+                            overlay.style.height = '100%';
+                            overlay.style.backgroundColor = 'rgba(0,0,0,0.8)';
+                            overlay.style.zIndex = '1000';
+                            overlay.style.display = 'flex';
+                            overlay.style.justifyContent = 'center';
+                            overlay.style.alignItems = 'center';
+                            
+                            // 创建大图
+                            const largeImg = new Image();
+                            largeImg.src = img.src;
+                            largeImg.style.maxWidth = '60%';
+                            largeImg.style.maxHeight = '60%';
+                            largeImg.style.borderRadius = '12px';
+                            largeImg.style.boxShadow = '0 8px 32px rgba(0,0,0,0.3)';
+                            
+                            // 点击关闭
+                            overlay.addEventListener('click', () => {
+                                document.body.removeChild(overlay);
+                            });
+                            
+                            overlay.appendChild(largeImg);
+                            document.body.appendChild(overlay);
+                        });
+                    };
+                    // 修改页面加载时的动画
+                    window.addEventListener('load', () => {
+                        const images = document.querySelectorAll('.image-container img');
+                        images.forEach((img, index) => {
+                            img.style.transitionDelay = `${index * 0.15}s`;
+                        });
+                    });
+                    img.onerror = () => {
+                        console.error(`无法加载图片: ${imageName}`);
+                        const errorDiv = document.createElement('div');
+                        errorDiv.textContent = `图片加载失败: ${imageName}`;
+                        errorDiv.style.color = 'red';
+                        imageContainer.appendChild(errorDiv);
+                    };
+                });
+            })
+            .catch(error => {
+                console.error('获取图片列表失败:', error);
+                handleError(error);
+            });
+    </script>
+</body>
+</html>
+
+<script>
+    // 当页面卸载时清除定时器
+    window.addEventListener('beforeunload', () => {
+        if (scrollInterval) {
+            clearInterval(scrollInterval);
+        }
+    });
+
+    // 添加自动滚动功能
+    const autoScrollBtn = document.getElementById('autoScrollBtn');
+    let scrollInterval = null;
+    const scrollSpeed = 50; // 滚动速度，单位：像素/秒
+
+    autoScrollBtn.addEventListener('click', () => {
+        if (scrollInterval) {
+            // 如果已经在滚动，则停止
+            clearInterval(scrollInterval);
+            scrollInterval = null;
+            autoScrollBtn.textContent = '自动滚动';
+        } else {
+            // 开始自动滚动
+            scrollInterval = setInterval(() => {
+                imageContainer.scrollBy({
+                    top: 2,
+                    behavior: 'smooth'
+                });
+
+                // 如果滚动到底部，回到顶部
+                if (imageContainer.scrollTop + imageContainer.clientHeight >= imageContainer.scrollHeight) {
+                    imageContainer.scrollTo({
+                        top: 0,
+                        behavior: 'smooth'
+                    });
+                }
+            }, 20);
+
+            autoScrollBtn.textContent = '停止滚动';
+        }
+    });
+
+    // 添加回到顶部按钮
+    const scrollToTopBtn = document.createElement('button');
+    scrollToTopBtn.textContent = '↑';
+    // 修改回到顶部按钮样式
+    scrollToTopBtn.style.position = 'fixed';
+    scrollToTopBtn.style.right = '20px';
+    scrollToTopBtn.style.bottom = '80px';  // 从20px改为80px，使按钮上移
+    scrollToTopBtn.style.padding = '12px';
+    scrollToTopBtn.style.fontSize = '1.2rem';
+    scrollToTopBtn.style.backgroundColor = 'rgba(168, 192, 255, 0.8)';  // 使用半透明背景色
+    scrollToTopBtn.style.color = '#2c3e50';  // 文字颜色改为深色
+    scrollToTopBtn.style.border = 'none';
+    scrollToTopBtn.style.borderRadius = '50%';
+    scrollToTopBtn.style.cursor = 'pointer';
+    scrollToTopBtn.style.boxShadow = '0 4px 15px rgba(0,0,0,0.2)';
+    scrollToTopBtn.style.opacity = '0';
+    scrollToTopBtn.style.transition = 'opacity 0.3s ease, transform 0.3s ease, background-color 0.3s ease';
+    scrollToTopBtn.style.zIndex = '1000';
+    
+    // 修改按钮悬停效果
+    scrollToTopBtn.addEventListener('mouseenter', () => {
+        scrollToTopBtn.style.transform = 'scale(1.1)';
+        scrollToTopBtn.style.backgroundColor = 'rgba(216, 178, 255, 0.8)';  // 使用半透明紫色
+    });
+    
+    scrollToTopBtn.addEventListener('mouseleave', () => {
+        scrollToTopBtn.style.transform = 'scale(1)';
+        scrollToTopBtn.style.backgroundColor = 'rgba(168, 192, 255, 0.8)';  // 恢复半透明蓝色
+    });
+    document.body.appendChild(scrollToTopBtn);
+
+    // 监听滚动事件
+    imageContainer.addEventListener('scroll', () => {
+        if (imageContainer.scrollTop > 300) {
+            scrollToTopBtn.style.opacity = '1';
+            scrollToTopBtn.style.transform = 'translateY(0)';
+        } else {
+            scrollToTopBtn.style.opacity = '0';
+            scrollToTopBtn.style.transform = 'translateY(20px)';
+        }
+    });
+
+    // 添加点击事件
+    scrollToTopBtn.addEventListener('click', () => {
+        imageContainer.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    });
+
+    // 添加按钮悬停效果
+    scrollToTopBtn.addEventListener('mouseenter', () => {
+        scrollToTopBtn.style.transform = 'scale(1.1)';
+        scrollToTopBtn.style.backgroundColor = '#d8b2ff';
+    });
+
+    scrollToTopBtn.addEventListener('mouseleave', () => {
+        scrollToTopBtn.style.transform = 'scale(1)';
+        scrollToTopBtn.style.backgroundColor = '#a8c0ff';
+    });
+</script>

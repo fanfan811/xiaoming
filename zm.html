@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>好久不见</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #a8c0ff 0%, #d8b2ff 100%);
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .gallery-container {
+            padding: 15px;
+            position: relative;
+        }
+
+        .sticky-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(168, 192, 255, 0.8); /* 修改为半透明的背景色 */
+            backdrop-filter: blur(8px); /* 添加毛玻璃效果 */
+            -webkit-backdrop-filter: blur(8px); /* Safari 浏览器支持 */
+            padding: 15px;
+            margin: -15px -15px 0;
+        }
+
+        .poem-card {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 10px 0 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .poem-card p {
+            margin: 10px 0;
+            font-size: 1rem;
+            color: #2c3e50;
+            line-height: 1.6;
+            font-family: "楷体", KaiTi, serif;
+            text-align: center;  /* 添加此行使文字居中 */
+        }
+
+        .image-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            margin-top: 15px;
+        }
+
+        .image-container img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .control-button {
+            display: block;
+            width: calc(100% - 30px);
+            margin: 15px auto;
+            padding: 12px;
+            font-size: 1rem;
+            background: linear-gradient(45deg, #a8c0ff, #d8b2ff);
+            border: none;
+            border-radius: 25px;
+            color: #2c3e50;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        #scrollToTopBtn {
+            position: fixed;
+            right: 15px;
+            bottom: 15px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(168, 192, 255, 0.9);
+            border: none;
+            color: #2c3e50;
+            font-size: 20px;
+            display: none;
+            z-index: 1000;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal img {
+            max-width: 90%;
+            max-height: 80vh;
+            border-radius: 8px;
+        }
+
+        @media (max-width: 480px) {
+            .image-container {
+                grid-template-columns: repeat(2, 1fr); /* 修改这里，确保在小屏幕上也保持两列 */
+                gap: 8px; /* 在小屏幕上稍微减小间距 */
+            }
+        }
+        @media (max-width: 480px) {
+                .image-container img {
+                    height: 120px; /* 在小屏幕上稍微降低图片高度 */
+                }
+            }
+    </style>
+</head>
+<body>
+    <div class="gallery-container">
+        <div class="sticky-header">
+            <div class="poem-card">
+                <p>等我们老得像两本旧书</p>
+                <p>泛黄的纸页还会相互取暖</p>
+            </div>
+            <button class="control-button" id="autoScrollBtn">自动滚动</button>
+        </div>
+        <div class="image-container" id="imageContainer"></div>
+    </div>
+
+    <button id="scrollToTopBtn">↑</button>
+
+    <script>
+        const imageContainer = document.getElementById('imageContainer');
+        const autoScrollBtn = document.getElementById('autoScrollBtn');
+        const scrollToTopBtn = document.getElementById('scrollToTopBtn');
+        let scrollInterval = null;
+
+        function handleError(error) {
+            console.error('错误详情:', error);
+            const errorDiv = document.createElement('div');
+            errorDiv.textContent = '图片加载出现问题，请稍后再试';
+            errorDiv.style.color = 'red';
+            errorDiv.style.padding = '20px';
+            errorDiv.style.textAlign = 'center';
+            imageContainer.appendChild(errorDiv);
+        }
+
+        fetch('http://localhost:3000/api/images')
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP错误! 状态码: ${response.status}`);
+                return response.json();
+            })
+            .then(data => {
+                if (!data.images || data.images.length === 0) {
+                    throw new Error('未找到任何图片');
+                }
+
+                const shuffledImages = data.images.sort(() => Math.random() - 0.5);
+                
+                shuffledImages.forEach(imageName => {
+                    const img = new Image();
+                    img.src = `http://localhost:3000/api/images/${imageName}`;
+                    img.alt = `小明图片 ${imageName}`;
+                    
+                    img.onload = () => {
+                        imageContainer.appendChild(img);
+                        
+                        img.addEventListener('click', () => {
+                            const modal = document.createElement('div');
+                            modal.className = 'modal';
+                            
+                            const modalImg = new Image();
+                            modalImg.src = img.src;
+                            
+                            modal.appendChild(modalImg);
+                            modal.addEventListener('click', () => modal.remove());
+                            document.body.appendChild(modal);
+                        });
+                    };
+
+                    img.onerror = () => {
+                        console.error(`无法加载图片: ${imageName}`);
+                    };
+                });
+            })
+            .catch(handleError);
+
+        // 自动滚动功能
+        autoScrollBtn.addEventListener('click', () => {
+            if (scrollInterval) {
+                clearInterval(scrollInterval);
+                scrollInterval = null;
+                autoScrollBtn.textContent = '自动滚动';
+            } else {
+                scrollInterval = setInterval(() => {
+                    window.scrollBy({
+                        top: 1,
+                        behavior: 'smooth'
+                    });
+
+                    if ((window.innerHeight + window.scrollY) >= document.documentElement.scrollHeight) {
+                        window.scrollTo({
+                            top: 0,
+                            behavior: 'smooth'
+                        });
+                    }
+                }, 20);
+                autoScrollBtn.textContent = '停止滚动';
+            }
+        });
+
+        // 回到顶部按钮
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) {
+                scrollToTopBtn.style.display = 'block';
+            } else {
+                scrollToTopBtn.style.display = 'none';
+            }
+        });
+
+        scrollToTopBtn.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+
+        // 清理
+        window.addEventListener('beforeunload', () => {
+            if (scrollInterval) {
+                clearInterval(scrollInterval);
+            }
+        });
+    </script>
+</body>
+</html>
