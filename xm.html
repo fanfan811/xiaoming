@@ -216,6 +216,24 @@
         const imageContainer = document.getElementById('imageContainer');
         let scrollInterval = null;
 
+        // 添加自动滚动功能
+        const autoScrollBtn = document.getElementById('autoScrollBtn');
+        autoScrollBtn.addEventListener('click', () => {
+            if (scrollInterval) {
+                clearInterval(scrollInterval);
+                scrollInterval = null;
+                autoScrollBtn.textContent = '自动滚动';
+            } else {
+                scrollInterval = setInterval(() => {
+                    imageContainer.scrollTop += 2; // 将步长从1改为2
+                    if (imageContainer.scrollTop + imageContainer.clientHeight >= imageContainer.scrollHeight) {
+                        imageContainer.scrollTop = 0;
+                    }
+                }, 20); // 将间隔时间从30ms改为20ms
+                autoScrollBtn.textContent = '停止滚动';
+            }
+        });
+
         // 错误处理函数
         function handleError(error) {
             console.error('错误详情:', error);
