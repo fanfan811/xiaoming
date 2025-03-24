@@ -254,8 +254,24 @@
             imageContainer.appendChild(errorDiv);
         }
 
-        // 从API获取图片列表
-        fetch('http://localhost:3000/api/images')
+        // 数组随机排序函数
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // 创建列容器
+        for (let i = 0; i < 6; i++) {
+            const column = document.createElement('div');
+            column.className = 'column';
+            imageContainer.appendChild(column);
+        }
+
+        // 获取图片列表
+        fetch('./images.json')
             .then(response => {
                 if (!response.ok) {
                     throw new Error(`HTTP错误! 状态码: ${response.status}`);
@@ -267,48 +283,16 @@
                     throw new Error('未找到任何图片');
                 }
                 
-                // 随机排序图片
-                function shuffleArray(array) {
-                    for (let i = array.length - 1; i > 0; i--) {
-                        const j = Math.floor(Math.random() * (i + 1));
-                        [array[i], array[j]] = [array[j], array[i]];
-                    }
-                    return array;
-                }
-                
-                const shuffledImages = shuffleArray(data.images);
-                
-                // 加载图片
-                // 创建6个列容器
-                for (let i = 0; i < 6; i++) {
-                    const column = document.createElement('div');
-                    column.className = 'column';
-                    imageContainer.appendChild(column);
-                }
-
-                // 将图片分配到列中
                 const columns = document.querySelectorAll('.column');
-                const imagesPerColumn = Math.ceil(shuffledImages.length / 6);
-                
-                // 先加载原始图片
+                const shuffledImages = shuffleArray(data.images);
                 let loadedImages = 0;
                 const totalImages = shuffledImages.length;
-                
-                // 添加模态框相关代码
-                const modal = document.getElementById('imageModal');
-                const modalImg = document.getElementById('modalImage');
                 
                 // 修改图片加载部分
                 shuffledImages.forEach((imageName, index) => {
                     const img = new Image();
-                    img.src = `http://localhost:3000/api/images/${imageName}`;
+                    img.src = `./xiaoming/${imageName}`; // 使用相对路径
                     img.alt = `小明图片 ${imageName}`;
-                    
-                    // 添加点击事件
-                    img.addEventListener('click', function() {
-                        modal.classList.add('active');
-                        modalImg.src = this.src;
-                    });
                     
                     img.onload = () => {
                         const columnIndex = index % 6;
@@ -324,27 +308,42 @@
                                     const clone = img.cloneNode(true);
                                     // 为克隆的图片添加点击事件
                                     clone.addEventListener('click', function() {
+                                        const modal = document.createElement('div');
+                                        modal.className = 'modal';
                                         modal.classList.add('active');
+                                        
+                                        const modalImg = new Image();
                                         modalImg.src = this.src;
+                                        modalImg.className = 'modal-content';
+                                        
+                                        modal.appendChild(modalImg);
+                                        modal.addEventListener('click', () => modal.remove());
+                                        document.body.appendChild(modal);
                                     });
                                     column.appendChild(clone);
                                 });
-                                // 开始滚动动画
-                                setTimeout(() => {
-                                    column.classList.add('start-scroll');
-                                }, 1000);
                             });
                         }
                     };
                     
+                    // 添加点击事件
+                    img.addEventListener('click', function() {
+                        const modal = document.createElement('div');
+                        modal.className = 'modal';
+                        modal.classList.add('active');
+                        
+                        const modalImg = new Image();
+                        modalImg.src = this.src;
+                        modalImg.className = 'modal-content';
+                        
+                        modal.appendChild(modalImg);
+                        modal.addEventListener('click', () => modal.remove());
+                        document.body.appendChild(modal);
+                    });
+                    
                     img.onerror = () => {
                         console.error(`无法加载图片: ${imageName}`);
                     };
-                });
-                
-                // 添加关闭模态框的事件
-                modal.addEventListener('click', function() {
-                    this.classList.remove('active');
                 });
             })
             .catch(error => {
